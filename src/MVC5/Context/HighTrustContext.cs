@@ -13,7 +13,7 @@ namespace AspNet.Owin.SharePoint.Addin.Authentication.Context
 			_userId = claimsPrincipal.FindFirst(c => c.Type.Equals(SPAddinClaimTypes.ADUserId)).Value;
 		}
 
-		protected override AccessToken CreateAppOnlyAccessToken(Uri host)
+		public override AccessToken CreateAppOnlyAccessToken(Uri host)
 		{
 			var s2sToken = AuthHelper.GetS2SAccessToken(host, null);
 
@@ -24,7 +24,7 @@ namespace AspNet.Owin.SharePoint.Addin.Authentication.Context
 			};
 		}
 
-		protected override AccessToken CreateUserAccessToken(Uri host)
+        public override AccessToken CreateUserAccessToken(Uri host)
 		{
 			var s2sToken = AuthHelper.GetS2SAccessToken(host, _userId);
 

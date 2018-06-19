@@ -12,7 +12,20 @@ namespace AspNet.Owin.SharePoint.Addin.Authentication.Context
 
 		protected readonly ClaimsPrincipal _claimsPrincipal;
 
-		protected string RefreshToken
+        protected string AppWebUrl
+        {
+            get
+            {
+                if (!_claimsPrincipal.HasClaim(c => c.Type == SPAddinClaimTypes.SPAppWebUrl))
+                {
+                    throw new Exception("Unable to find App Web Url under current user's claims");
+                }
+
+                return _claimsPrincipal.FindFirst(SPAddinClaimTypes.SPAppWebUrl).Value;
+            }
+        }
+
+        public string RefreshToken
 		{
 			get
 			{
@@ -64,7 +77,7 @@ namespace AspNet.Owin.SharePoint.Addin.Authentication.Context
 			}
 		}
 
-		protected Uri SPHostUrl
+        public Uri SPHostUrl
 		{
 			get
 			{
@@ -99,17 +112,16 @@ namespace AspNet.Owin.SharePoint.Addin.Authentication.Context
 		{
 			_claimsPrincipal = claimsPrincipal;
 		}
-
+        
 		protected ClientContext GetUserClientContext(Uri host)
 		{
-			var accessToken = Cache.Get(GetUserCacheKey(host.Authority));
-			if (accessToken == null)
-			{
-				accessToken = CreateUserAccessToken(host);
-				Cache.Insert(accessToken, GetUserCacheKey(host.Authority));
-			}
-
-			return TokenHelper.GetClientContextWithAccessToken(host.AbsoluteUri, accessToken.Value);
+            var accessToken = Cache.Get(GetUserCacheKey(host.Authority));
+            if (accessToken == null)
+            {
+                accessToken = CreateUserAccessToken(host);
+                Cache.Insert(accessToken, GetUserCacheKey(host.Authority));
+            }
+            return TokenHelper.GetClientContextWithAccessToken(host.AbsoluteUri, accessToken.Value);
 		}
 
 		protected ClientContext GetAppOnlyClientContext(Uri host)
@@ -144,8 +156,8 @@ namespace AspNet.Owin.SharePoint.Addin.Authentication.Context
 			return GetAppOnlyClientContext(SPAppWebUrl);
 		}
 
-		protected abstract AccessToken CreateAppOnlyAccessToken(Uri host);
-		protected abstract AccessToken CreateUserAccessToken(Uri host);
+		public abstract AccessToken CreateAppOnlyAccessToken(Uri host);
+		public abstract AccessToken CreateUserAccessToken(Uri host);
 
 		protected string GetUserCacheKey(string host)
 		{

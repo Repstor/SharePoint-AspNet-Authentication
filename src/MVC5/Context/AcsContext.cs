@@ -10,7 +10,7 @@ namespace AspNet.Owin.SharePoint.Addin.Authentication.Context
 		{
 		}
 
-		protected override AccessToken CreateUserAccessToken(Uri host)
+		public override AccessToken CreateUserAccessToken(Uri host)
 		{
 			var oauthToken = TokenHelper.GetAccessToken(RefreshToken, TargetPrincipalName, host.Authority, Realm);
 
@@ -21,7 +21,7 @@ namespace AspNet.Owin.SharePoint.Addin.Authentication.Context
 			};
 		}
 
-		protected override AccessToken CreateAppOnlyAccessToken(Uri host)
+        public override AccessToken CreateAppOnlyAccessToken(Uri host)
 		{
 			var oauthToken = TokenHelper.GetAppOnlyAccessToken(TokenHelper.SharePointPrincipal, host.Authority, Realm);
 

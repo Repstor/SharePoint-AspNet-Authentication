@@ -136,18 +136,26 @@ namespace AspNet.Owin.SharePoint.Addin.Authentication.Middleware
 					throw new Exception("Correlation failed.");
 				}
 
-				var ticket = await AuthenticateAsync();
+                try
+                {
+                    var ticket = await AuthenticateAsync();
 
-				if (ticket != null)
-				{
-					ticket.Identity.AddClaim(new Claim(SPAddinClaimTypes.SPAddinAuthentication, "1"));
-					Context.Authentication.SignIn(ticket.Properties, ticket.Identity);
+                    if (ticket != null)
+                    {
+                        ticket.Identity.AddClaim(new Claim(SPAddinClaimTypes.SPAddinAuthentication, "1"));
+                        Context.Authentication.SignIn(ticket.Properties, ticket.Identity);
 
-					Response.Redirect(ticket.Properties.RedirectUri);
+                        Response.Redirect(ticket.Properties.RedirectUri);
 
-					// Prevent further processing by the owin pipeline.
-					return true;
-				}
+                        // Prevent further processing by the owin pipeline.
+                        return true;
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.WriteWarning("SPAddInAuthenticationHandler: " + e.Message + " Session may be expired?");
+                    return false;
+                }
 			}
 
 			// Let the rest of the pipeline run.
